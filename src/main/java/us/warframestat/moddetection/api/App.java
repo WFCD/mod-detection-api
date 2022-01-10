@@ -1,4 +1,4 @@
-package us.warframestat.moddetectionapi;
+package us.warframestat.moddetection.api;
 
 /**
  * Hello world!
