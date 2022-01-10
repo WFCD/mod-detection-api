@@ -10,8 +10,4 @@ public class App
     {
         System.out.println( "Hello World!" );
     }
-
-    public static String test() {
-    	return "Hello World!";
-    }
 }
