@@ -7,25 +7,18 @@ import org.bytedeco.javacpp.opencv_imgproc;
 import org.bytedeco.javacpp.opencv_objdetect;
 import org.bytedeco.javacv.Java2DFrameConverter;
 import org.bytedeco.javacv.OpenCVFrameConverter;
-import org.opencv.core.Core;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import us.warframestat.moddetection.api.utils.WarframeMarketAPI;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
-import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Path;
 import java.util.AbstractMap;
 import java.util.Map;
 import java.util.Objects;
-
-import static org.bytedeco.opencv.global.opencv_imgcodecs.imdecode;
-import static org.bytedeco.opencv.global.opencv_imgcodecs.imwrite;
-import static org.bytedeco.opencv.global.opencv_imgproc.rectangle;
 
 public class DetectMods {
   private static final Logger logger = LoggerFactory.getLogger(DetectMods.class);
@@ -36,7 +29,6 @@ public class DetectMods {
   public static Map.Entry<BufferedImage, Integer> run(BufferedImage modImage, String stageFile, double scale, int neighbours, String platform) throws IOException {
     // weird bugs are weird -getClassLoader.getPath() prefixes the path with a / - this is obviously
     // a bug with Windows/Java, but this work around works
-    System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
     String cascadeFilePath =
         new File(
                 Objects.requireNonNull(
@@ -66,7 +58,7 @@ public class DetectMods {
     // debugging time takes for performance
     long l = System.currentTimeMillis();
     // MAGIC!
-    // todo: detect aspect ratio and change min/max size
+    // toodo: detect aspect ratio and change min/max size
     modDetector.detectMultiScale(
         image,
         modDetections,
