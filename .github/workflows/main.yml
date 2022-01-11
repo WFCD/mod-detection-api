@@ -18,10 +18,10 @@ jobs:
       uses: actions/setup-node@v1
       with:
         node-version: 16.13.2
-      env:
-        GITHUB_TOKEN: ${{ secrets.GH_TOKEN }} 
+      #env:
+        #GITHUB_TOKEN: ${{ secrets.GH_TOKEN }} 
     - run: npm install -g semantic-release @semantic-release/changelog @semantic-release/commit-analyzer @semantic-release/exec semantic-release/git semantic-release/release-notes-generator
     - name: Release
-      env:
-        GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
+      #env:
+        #GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
       run: chmod +x ./prepare-release.sh && npx semantic-release
