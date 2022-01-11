@@ -1,6 +1,6 @@
 {
      "branches": "master",
-     "repositoryUrl": "https://github.com/embesozzi/java-semantic-release",
+     "repositoryUrl": "https://github.com/WFCD/mod-detection-api",
      "debug": "true",
      "plugins": [
         "@semantic-release/commit-analyzer",
