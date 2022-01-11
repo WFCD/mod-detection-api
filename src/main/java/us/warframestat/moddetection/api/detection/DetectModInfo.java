@@ -6,10 +6,10 @@ import net.sourceforge.tess4j.Tesseract;
 import net.sourceforge.tess4j.TesseractException;
 import net.sourceforge.tess4j.util.LoadLibs;
 import org.apache.commons.io.IOUtils;
-import org.bytedeco.javacpp.opencv_core;
-import org.bytedeco.javacpp.opencv_imgproc;
 import org.bytedeco.javacv.Java2DFrameConverter;
 import org.bytedeco.javacv.OpenCVFrameConverter;
+import org.bytedeco.opencv.opencv_core.Mat;
+import org.bytedeco.opencv.opencv_core.Range;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.slf4j.Logger;
@@ -25,6 +25,8 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
+
+import static org.bytedeco.opencv.global.opencv_imgproc.*;
 
 public class DetectModInfo {
   private static final Tesseract tesseract = new Tesseract();
@@ -120,7 +122,7 @@ public class DetectModInfo {
    * @return map entry with key and value of the mod name and id
    * @throws TesseractException if tesseract fails to recognize the image text
    */
-  public static Map.Entry<String, String> detectModName(opencv_core.Mat mat) throws TesseractException {
+  public static Map.Entry<String, String> detectModName(Mat mat) throws TesseractException {
     // convert Matrix to BufferedImage for Tesseract processing
     OpenCVFrameConverter.ToMat converterToMat = new OpenCVFrameConverter.ToMat();
     Java2DFrameConverter converterToImage = new Java2DFrameConverter();
@@ -128,15 +130,15 @@ public class DetectModInfo {
     // cut image for only text
     mat =
         mat.apply(
-            new opencv_core.Range(35, mat.rows() - 20), new opencv_core.Range(20, mat.cols() - 10));
+            new Range(35, mat.rows() - 20), new Range(20, mat.cols() - 10));
 
     // make grayscale
-    opencv_core.Mat gray = new opencv_core.Mat(mat.size(), CvType.CV_8U);
-    opencv_imgproc.cvtColor(mat, gray, opencv_imgproc.COLOR_BGR2GRAY, 1);
+    Mat gray = new Mat(mat.size(), CvType.CV_8U);
+    cvtColor(mat, gray, COLOR_BGR2GRAY, 1);
 
     // do some magic image processing
-    opencv_core.Mat newMat = new opencv_core.Mat(mat.size(), CvType.CV_8U);
-    opencv_imgproc.threshold(gray, newMat, 170, 255, opencv_imgproc.THRESH_BINARY_INV);
+    Mat newMat = new Mat(mat.size(), CvType.CV_8U);
+    threshold(gray, newMat, 170, 255, THRESH_BINARY_INV);
 
     // convert to BufferedImage
     BufferedImage image = converterToImage.convert(converterToMat.convert(newMat));
