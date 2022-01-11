@@ -1,5 +1,5 @@
 {
-     "branches": "main",
+     "branches": ["main"],
      "repositoryUrl": "https://github.com/embesozzi/java-semantic-release",
      "debug": "true",
      "plugins": [
