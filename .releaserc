@@ -6,7 +6,7 @@
       "next-major",
       {name: "beta", prerelease: true},
       {name: "alpha", prerelease: true},
-    ],,
+    ],
      "repositoryUrl": "https://github.com/embesozzi/java-semantic-release",
      "debug": "true",
      "plugins": [
