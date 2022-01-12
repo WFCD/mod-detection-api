@@ -3,16 +3,7 @@
      "repositoryUrl": "https://github.com/WFCD/mod-detection-api",
      "debug": "true",
      "plugins": [
-        ["@semantic-release/commit-analyzer", {
-        "preset": "angular",
-        "releaseRules": [
-          {"type": "docs", "scope": "README", "release": "patch"},
-          {"type": "refactor", "scope": "core-*", "release": "minor"},
-          {"type": "refactor", "release": "patch"},
-          {"type": "big-release", "release": "major"},
-          {"scope": "no-release", "release": false}
-        ]
-        }],
+        "@semantic-release/commit-analyzer",
         "@semantic-release/release-notes-generator",
         [
             "@semantic-release/changelog",
