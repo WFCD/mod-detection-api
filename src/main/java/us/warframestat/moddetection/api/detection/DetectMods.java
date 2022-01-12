@@ -5,16 +5,20 @@ import org.bytedeco.javacv.Java2DFrameConverter;
 import org.bytedeco.javacv.OpenCVFrameConverter;
 import org.bytedeco.opencv.opencv_core.*;
 import org.bytedeco.opencv.opencv_objdetect.CascadeClassifier;
+import org.json.JSONArray;
+import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import us.warframestat.moddetection.api.App;
 import us.warframestat.moddetection.api.utils.WarframeMarketAPI;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.IOException;
+import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.AbstractMap;
+import java.util.Base64;
 import java.util.Map;
 import java.util.Objects;
 
@@ -27,23 +31,21 @@ public class DetectMods {
 
   private DetectMods() { }
 
-  // Lets do some recognising!
-  public static Map.Entry<BufferedImage, Integer> run(BufferedImage modImage, String stageFile, double scale, int neighbours, String platform) throws IOException {
-    // weird bugs are weird -getClassLoader.getPath() prefixes the path with a / - this is obviously
-    // a bug with Windows/Java, but this work around works
-    String cascadeFilePath =
-        new File(
-                Objects.requireNonNull(
-                        DetectMods.class
-                            .getClassLoader()
-                            .getResource("cascade/" + stageFile + ".xml"))
-                    .getFile())
-            .getAbsolutePath();
+  /**
+   * Runs opencv and tesseract
+   * @param modImage  original image
+   * @param stageFile cascade file
+   * @param scale    scale factor
+   * @param neighbours  number of neighbours
+   * @param platform platform (ps4, xbox, pc, switch)
+   * @return map of complete image and detected mods
+   * @throws IOException on error
+   */
+  public static Map.Entry<BufferedImage, JSONObject> run(BufferedImage modImage, String stageFile, double scale, int neighbours, String platform) throws IOException {
+    CascadeClassifier modDetector = new CascadeClassifier(App.data.toPath().resolve("cascade").resolve(stageFile + ".xml").toString());
 
-    // Create a new CascadeClassifier based of the cascades created - Which took over 35 computing
-    // days to complete....
-    CascadeClassifier modDetector =
-        new CascadeClassifier(cascadeFilePath);
+    OpenCVFrameConverter.ToMat converterToMat = new OpenCVFrameConverter.ToMat();
+    Java2DFrameConverter converterToImage = new Java2DFrameConverter();
 
     // We need to create a Mat based on the image as, hopefully, we'll be drawing on it real soon
     ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
@@ -75,6 +77,7 @@ public class DetectMods {
     DetectModInfo.setup();
 
     Mat rectangleMat = image.clone();
+    JSONArray modArray = new JSONArray();
     int totalPrice = 0;
     // Draw a bounding box around each mod. And cross your fingers. And toes. And your pet's toes.
     // If they have toes...
@@ -83,7 +86,12 @@ public class DetectMods {
       Mat subMatrix = image.apply(rect);
       try {
         Map.Entry<String, String> mod = DetectModInfo.detectModName(subMatrix);
-        totalPrice += WarframeMarketAPI.getPrice(mod.getValue(), platform);
+        int price =  WarframeMarketAPI.getPrice(mod.getValue(), platform);
+        totalPrice += price;
+        modArray.put(new JSONObject()
+                .put("name", mod.getKey())
+                .put("price", price)
+                .put("image", imgToBase64String(converterToImage.convert(converterToMat.convert(subMatrix)), "jpg")));
       } catch (TesseractException e) {
         e.printStackTrace();
       }// Rectangle drawing!
@@ -94,12 +102,34 @@ public class DetectMods {
           new Point(rect.x() + rect.width(), rect.y() + rect.height()),
           new Scalar(0, 255, 0, 0));
     }
-    OpenCVFrameConverter.ToMat converterToMat = new OpenCVFrameConverter.ToMat();
-    Java2DFrameConverter converterToImage = new Java2DFrameConverter();
 
     BufferedImage finalImage = converterToImage.convert(converterToMat.convert(rectangleMat));
 
     modDetector.close();
-    return new AbstractMap.SimpleEntry<>(finalImage, totalPrice);
+
+    JSONObject modInfo = new JSONObject();
+    modInfo.put("mods", modArray);
+    modInfo.put("image", imgToBase64String(finalImage, "jpg"));
+    modInfo.put("totalPrice", totalPrice);
+
+    return new AbstractMap.SimpleEntry<>(finalImage, modInfo);
+  }
+
+  public static String imgToBase64String(final BufferedImage img, final String formatName) {
+    final ByteArrayOutputStream os = new ByteArrayOutputStream();
+    try (final OutputStream b64os = Base64.getEncoder().wrap(os)) {
+      ImageIO.write(img, formatName, b64os);
+    } catch (final IOException ioe) {
+      throw new UncheckedIOException(ioe);
+    }
+    return os.toString();
+  }
+
+  public static BufferedImage base64StringToImg(final String base64String) {
+    try {
+      return ImageIO.read(new ByteArrayInputStream(Base64.getDecoder().decode(base64String)));
+    } catch (final IOException ioe) {
+      throw new UncheckedIOException(ioe);
+    }
   }
 }

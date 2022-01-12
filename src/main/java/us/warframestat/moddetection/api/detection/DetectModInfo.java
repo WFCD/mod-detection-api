@@ -15,6 +15,7 @@ import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.opencv.core.CvType;
+import us.warframestat.moddetection.api.App;
 
 import java.awt.image.BufferedImage;
 import java.io.File;
@@ -22,6 +23,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
@@ -47,13 +49,7 @@ public class DetectModInfo {
     tesseract.setLanguage("eng");
     tesseract.setTessVariable("user_defined_dpi", "70");
 
-    Path dataDirectory;
-    try {
-      dataDirectory = Paths.get(ClassLoader.getSystemResource("tesseract").toURI());
-    } catch (URISyntaxException e) {
-      return;
-    }
-    tesseract.setDatapath(dataDirectory.toString());
+    tesseract.setDatapath(App.data.toPath().resolve("tesseract").toString());
 
     // make list of json mod names and weapon names
     InputStream modIS = ClassLoader.getSystemResourceAsStream("tesseract/Mods.json");
