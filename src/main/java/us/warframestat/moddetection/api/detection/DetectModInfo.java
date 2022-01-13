@@ -15,7 +15,7 @@ import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.opencv.core.CvType;
-import us.warframestat.moddetection.api.App;
+import us.warframestat.moddetection.api.API;
 
 import java.awt.image.BufferedImage;
 import java.io.File;
@@ -49,7 +49,12 @@ public class DetectModInfo {
     tesseract.setLanguage("eng");
     tesseract.setTessVariable("user_defined_dpi", "70");
 
-    tesseract.setDatapath(App.data.toPath().resolve("tesseract").toString());
+    Path tesseractPath = API.DATA.toPath().resolve("tesseract");
+    if (!tesseractPath.toFile().exists()) {
+      logger.info("{\"error\": \"tesseract folder not found\"}");
+      return;
+    }
+    tesseract.setDatapath(tesseractPath.toString());
 
     // make list of json mod names and weapon names
     InputStream modIS = ClassLoader.getSystemResourceAsStream("tesseract/Mods.json");
@@ -157,11 +162,8 @@ public class DetectModInfo {
 
     if (modName.getScore() < 70) {
       // most likely a riven mod
-      logger.info("OCR: {}", "Riven Mod");
       return new AbstractMap.SimpleEntry<>("Riven Mod", "riven_mod");
     }
-
-    logger.info("OCR: {}, Confidence: {}", modName.getString(), modName.getScore());
 
     return new AbstractMap.SimpleEntry<>(modName.getString(), modNames.get(modName.getString()));
   }

@@ -9,7 +9,7 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import us.warframestat.moddetection.api.App;
+import us.warframestat.moddetection.api.API;
 import us.warframestat.moddetection.api.utils.WarframeMarketAPI;
 
 import javax.imageio.ImageIO;
@@ -42,7 +42,8 @@ public class DetectMods {
    * @throws IOException on error
    */
   public static Map.Entry<BufferedImage, JSONObject> run(BufferedImage modImage, String stageFile, double scale, int neighbours, String platform) throws IOException {
-    CascadeClassifier modDetector = new CascadeClassifier(App.data.toPath().resolve("cascade").resolve(stageFile + ".xml").toString());
+    API.setupData();
+    CascadeClassifier modDetector = new CascadeClassifier(API.DATA.toPath().resolve("cascade").resolve(stageFile + ".xml").toString());
 
     OpenCVFrameConverter.ToMat converterToMat = new OpenCVFrameConverter.ToMat();
     Java2DFrameConverter converterToImage = new Java2DFrameConverter();
@@ -115,6 +116,12 @@ public class DetectMods {
     return new AbstractMap.SimpleEntry<>(finalImage, modInfo);
   }
 
+  /**
+   * convert image to base64 string for use in json
+   * @param img bufferedimage to convert
+   * @param formatName  format of image i.e. jpg, png
+   * @return  base64 string of image
+   */
   public static String imgToBase64String(final BufferedImage img, final String formatName) {
     final ByteArrayOutputStream os = new ByteArrayOutputStream();
     try (final OutputStream b64os = Base64.getEncoder().wrap(os)) {
@@ -125,6 +132,11 @@ public class DetectMods {
     return os.toString();
   }
 
+  /**
+   * convert base64 image string back to bufferedimage
+   * @param base64String  base64 image string
+   * @return  bufferedimage from string
+   */
   public static BufferedImage base64StringToImg(final String base64String) {
     try {
       return ImageIO.read(new ByteArrayInputStream(Base64.getDecoder().decode(base64String)));

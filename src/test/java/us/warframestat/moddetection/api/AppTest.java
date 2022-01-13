@@ -11,7 +11,7 @@ import java.util.Map;
 import java.util.Objects;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static us.warframestat.moddetection.api.App.logger;
+import static us.warframestat.moddetection.api.API.LOGGER;
 
 /**
  * Unit test for simple App.
@@ -29,11 +29,12 @@ class AppTest
 
     @Test
     void testModDetection() throws IOException {
-        App.setupData();
+        API.setupData();
         BufferedImage image = ImageIO.read(Objects.requireNonNull(this.getClass().getResourceAsStream("/images/1.jpg")));
         Map.Entry<BufferedImage, JSONObject> output = DetectMods.run(image, "cascade19", 1.150, 4, "pc");
-        logger.info(output.getValue().toString());
-        logger.info(String.valueOf(output.getValue().toString().length()));
+        LOGGER.info(output.getValue().toString());
+        LOGGER.info(String.valueOf(output.getValue().toString().length()));
+        API.cleanupData();
         assertNotEquals(null, output);
     }
 }

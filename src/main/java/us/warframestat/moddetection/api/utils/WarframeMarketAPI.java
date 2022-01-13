@@ -105,7 +105,6 @@ public class WarframeMarketAPI {
         // check for rate limit, if so, wait and try again
         try {
           if (connection.getResponseCode() == 503) {
-            logger.info("RIP: Rate limited. Retrying in 5 seconds.");
             Thread.sleep(5000);
             return getPrice(item, platform);
           }
