@@ -16,19 +16,26 @@ import java.util.Objects;
 public class API {
     public static final Logger LOGGER = LoggerFactory.getLogger(API.class);
 
-    public static final File DATA = new File(System.getProperty("java.io.tmpdir"), "ModDetectionOpenCV");
+    public static File DATA = new File(System.getProperty("java.io.tmpdir"), "ModDetectionOpenCV");
 
     /**
      * Run the detection.
      * @param args datafolder
      */
-    public static void main( String[] args ) {
+    public static void main(String[] args) {
+        if (args.length != 0) {
+            try {
+                DATA = new File(args[0]);
+                return;
+            } catch (NullPointerException e) {
+                DATA = new File(System.getProperty("java.io.tmpdir"), "ModDetectionOpenCV");
+            }
+        }
         try {
             API.setupData();
         } catch (IOException e) {
             e.printStackTrace();
         }
-        LOGGER.info(Arrays.toString(args));
     }
 
     /**
