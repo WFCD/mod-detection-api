@@ -1,9 +1,5 @@
 package us.warframestat.moddetection.api.utils;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -15,6 +11,9 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.logging.Logger;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 public class WarframeMarketAPI {
   private WarframeMarketAPI() {}
@@ -105,6 +104,7 @@ public class WarframeMarketAPI {
         // check for rate limit, if so, wait and try again
         try {
           if (connection.getResponseCode() == 503) {
+            logger.fine("RIP: Rate limited. Retrying in 5 seconds.");
             Thread.sleep(5000);
             return getPrice(item, platform);
           }

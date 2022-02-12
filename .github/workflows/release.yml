@@ -25,4 +25,4 @@ jobs:
     - name: Release
       env:
         GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
-      run: chmod +x ./prepare-release.sh && npx semantic-release
+      run: chmod +x ./.github/workflows/prepare-release.sh && npx semantic-release
