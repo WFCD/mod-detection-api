@@ -1,5 +1,14 @@
 package us.warframestat.moddetection.api.detection;
 
+import static org.bytedeco.opencv.global.opencv_imgproc.*;
+
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Path;
+import java.util.*;
 import me.xdrop.fuzzywuzzy.FuzzySearch;
 import me.xdrop.fuzzywuzzy.model.ExtractedResult;
 import net.sourceforge.tess4j.Tesseract;
@@ -12,21 +21,10 @@ import org.bytedeco.opencv.opencv_core.Mat;
 import org.bytedeco.opencv.opencv_core.Range;
 import org.json.JSONArray;
 import org.json.JSONObject;
+import org.opencv.core.CvType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.opencv.core.CvType;
-
-import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.URISyntaxException;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.*;
-
-import static org.bytedeco.opencv.global.opencv_imgproc.*;
+import us.warframestat.moddetection.api.API;
 
 public class DetectModInfo {
   private static final Tesseract tesseract = new Tesseract();
@@ -47,13 +45,12 @@ public class DetectModInfo {
     tesseract.setLanguage("eng");
     tesseract.setTessVariable("user_defined_dpi", "70");
 
-    Path dataDirectory;
-    try {
-      dataDirectory = Paths.get(ClassLoader.getSystemResource("tesseract").toURI());
-    } catch (URISyntaxException e) {
+    Path tesseractPath = API.resolve("tesseract");
+    if (!tesseractPath.toFile().exists()) {
+      logger.info("{\"error\": \"tesseract folder not found\"}");
       return;
     }
-    tesseract.setDatapath(dataDirectory.toString());
+    tesseract.setDatapath(tesseractPath.toString());
 
     // make list of json mod names and weapon names
     InputStream modIS = ClassLoader.getSystemResourceAsStream("tesseract/Mods.json");
@@ -128,9 +125,7 @@ public class DetectModInfo {
     Java2DFrameConverter converterToImage = new Java2DFrameConverter();
 
     // cut image for only text
-    mat =
-        mat.apply(
-            new Range(35, mat.rows() - 20), new Range(20, mat.cols() - 10));
+    mat = mat.apply(new Range(35, mat.rows() - 20), new Range(20, mat.cols() - 10));
 
     // make grayscale
     Mat gray = new Mat(mat.size(), CvType.CV_8U);
@@ -161,11 +156,8 @@ public class DetectModInfo {
 
     if (modName.getScore() < 70) {
       // most likely a riven mod
-      logger.info("OCR: {}", "Riven Mod");
       return new AbstractMap.SimpleEntry<>("Riven Mod", "riven_mod");
     }
-
-    logger.info("OCR: {}, Confidence: {}", modName.getString(), modName.getScore());
 
     return new AbstractMap.SimpleEntry<>(modName.getString(), modNames.get(modName.getString()));
   }
