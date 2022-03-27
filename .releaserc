@@ -15,7 +15,7 @@
         [
             "@semantic-release/exec",
             {
-                "prepareCmd": "./prepare-release.sh ${nextRelease.version}"
+                "prepareCmd": "./.github/workflows/prepare-release.sh ${nextRelease.version}"
             }
         ],
         [
