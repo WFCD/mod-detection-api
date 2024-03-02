@@ -17,10 +17,12 @@ jobs:
     - uses: actions/setup-java@v4
       with:
         java-version: 16
+        distribution: 'temurin'
+        cache: 'maven'
     - name: Setup Node.js and semantic-release plugins
       uses: actions/setup-node@v4
       with:
-        node-version: 16
+        node-version: lts/hydrogen
       env:
         GITHUB_TOKEN: ${{ secrets.GH_TOKEN }} 
     - run: npm install -g semantic-release @semantic-release/changelog @semantic-release/commit-analyzer @semantic-release/exec semantic-release/git semantic-release/release-notes-generator
