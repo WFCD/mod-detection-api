@@ -17,7 +17,6 @@ updates:
       include: "scope"
     labels:
       - "Scope: Dependencies"
-      - "Type: Maintenance"
     open-pull-requests-limit: 10
     pull-request-branch-name:
       separator: "-"
@@ -34,7 +33,6 @@ updates:
       include: "scope"
     labels:
       - "Scope: Dependencies"
-      - "Type: Maintenance"
     open-pull-requests-limit: 10
     pull-request-branch-name:
       separator: "-"
