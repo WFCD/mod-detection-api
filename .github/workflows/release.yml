@@ -22,7 +22,7 @@ jobs:
     - name: Setup Node.js and semantic-release plugins
       uses: actions/setup-node@v4
       with:
-        node-version: lts/hydrogen
+        node-version: lts/iron
       env:
         GITHUB_TOKEN: ${{ secrets.GH_TOKEN }} 
     - run: npm install -g semantic-release @semantic-release/changelog @semantic-release/commit-analyzer @semantic-release/exec semantic-release/git semantic-release/release-notes-generator
